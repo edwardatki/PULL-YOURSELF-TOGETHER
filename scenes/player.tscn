@@ -1,0 +1,658 @@
+[gd_scene load_steps=23 format=2]
+
+[ext_resource path="res://sprites/chain.png" type="Texture" id=1]
+[ext_resource path="res://sprites/left_grabber.png" type="Texture" id=2]
+[ext_resource path="res://sprites/right_grabber.png" type="Texture" id=3]
+[ext_resource path="res://scripts/grabber.gd" type="Script" id=4]
+[ext_resource path="res://scripts/camera_target.gd" type="Script" id=5]
+[ext_resource path="res://scripts/player.gd" type="Script" id=6]
+[ext_resource path="res://sounds/fail.wav" type="AudioStream" id=7]
+[ext_resource path="res://sounds/grab.wav" type="AudioStream" id=8]
+[ext_resource path="res://sounds/pull.wav" type="AudioStream" id=9]
+
+[sub_resource type="PhysicsMaterial" id=13]
+friction = 0.5
+bounce = 0.1
+
+[sub_resource type="AtlasTexture" id=1]
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=2]
+atlas = ExtResource( 2 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=3]
+animations = [ {
+"frames": [ SubResource( 1 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 2 ) ],
+"loop": true,
+"name": "grab",
+"speed": 5.0
+} ]
+
+[sub_resource type="CircleShape2D" id=4]
+radius = 7.5
+
+[sub_resource type="CircleShape2D" id=5]
+radius = 8.5
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 3 )
+region = Rect2( 0, 0, 16, 16 )
+
+[sub_resource type="AtlasTexture" id=7]
+atlas = ExtResource( 3 )
+region = Rect2( 16, 0, 16, 16 )
+
+[sub_resource type="SpriteFrames" id=8]
+animations = [ {
+"frames": [ SubResource( 6 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+}, {
+"frames": [ SubResource( 7 ) ],
+"loop": true,
+"name": "grab",
+"speed": 5.0
+} ]
+
+[sub_resource type="PhysicsMaterial" id=10]
+friction = 0.0
+
+[sub_resource type="CapsuleShape2D" id=9]
+radius = 1.0
+height = 4.0
+
+[sub_resource type="Animation" id=12]
+resource_name = "rope_fade_in"
+length = 0.1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Rope:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 0.470588, 0.470588, 0.470588, 1 ), Color( 1, 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=11]
+resource_name = "rope_fade_out"
+length = 0.1
+step = 0.0166667
+tracks/0/type = "value"
+tracks/0/path = NodePath("Rope:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 0.470588, 0.470588, 0.470588, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CameraAnchor/CameraTarget:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.0166667, 0.0333333, 0.05, 0.0666667, 0.0833333, 0.1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ), Vector2( 5, 5 ), Vector2( 0, 0 ), Vector2( 0, -5 ), Vector2( -5, 0 ), Vector2( -5, 5 ), Vector2( 0, 0 ) ]
+}
+
+[node name="Player" type="Control"]
+use_parent_material = true
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CameraAnchor" type="Node2D" parent="."]
+script = ExtResource( 5 )
+leftGrabberPath = NodePath("../LeftGrabber")
+rightGrabberPath = NodePath("../RightGrabber")
+
+[node name="CameraTarget" type="Node2D" parent="CameraAnchor" groups=[
+"camera_target",
+]]
+
+[node name="LeftGrabber" type="RigidBody2D" parent="." groups=[
+"player",
+]]
+use_parent_material = true
+position = Vector2( -32, 0 )
+z_index = 2
+mass = 4.0
+physics_material_override = SubResource( 13 )
+can_sleep = false
+angular_velocity = 1.0
+script = ExtResource( 4 )
+action_name = "left_grab"
+otherGrabberPath = NodePath("../RightGrabber")
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="LeftGrabber"]
+use_parent_material = true
+frames = SubResource( 3 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftGrabber"]
+shape = SubResource( 4 )
+
+[node name="Area2D" type="Area2D" parent="LeftGrabber"]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftGrabber/Area2D"]
+shape = SubResource( 5 )
+
+[node name="GrabAudio" type="AudioStreamPlayer" parent="LeftGrabber"]
+stream = ExtResource( 8 )
+bus = "FX"
+
+[node name="ReleaseAudio" type="AudioStreamPlayer" parent="LeftGrabber"]
+stream = ExtResource( 7 )
+bus = "FX"
+
+[node name="PullAudio" type="AudioStreamPlayer" parent="LeftGrabber"]
+stream = ExtResource( 9 )
+bus = "FX"
+
+[node name="RightGrabber" type="RigidBody2D" parent="." groups=[
+"player",
+]]
+use_parent_material = true
+position = Vector2( 32, 0 )
+z_index = 2
+mass = 4.0
+physics_material_override = SubResource( 13 )
+can_sleep = false
+script = ExtResource( 4 )
+action_name = "right_grab"
+otherGrabberPath = NodePath("../LeftGrabber")
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="RightGrabber"]
+use_parent_material = true
+frames = SubResource( 8 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightGrabber"]
+shape = SubResource( 4 )
+
+[node name="Area2D" type="Area2D" parent="RightGrabber"]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightGrabber/Area2D"]
+shape = SubResource( 5 )
+
+[node name="GrabAudio" type="AudioStreamPlayer" parent="RightGrabber"]
+stream = ExtResource( 8 )
+bus = "FX"
+
+[node name="ReleaseAudio" type="AudioStreamPlayer" parent="RightGrabber"]
+stream = ExtResource( 7 )
+bus = "FX"
+
+[node name="PullAudio" type="AudioStreamPlayer" parent="RightGrabber"]
+stream = ExtResource( 9 )
+bus = "FX"
+
+[node name="Rope" type="Control" parent="."]
+use_parent_material = true
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RopeSegment" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -28, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../../LeftGrabber")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment2" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -24, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment2"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment2"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment2"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment3" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -20, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment3"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment3"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment3"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment2")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment4" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -16, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment4"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment4"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment4"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment3")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment5" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -12, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment5"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment5"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment5"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment4")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment6" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -8, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment6"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment6"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment6"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment5")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment7" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( -4, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment7"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment7"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment7"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment6")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment8" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment8"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment8"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment8"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment7")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment9" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 4, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment9"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment9"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment9"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment8")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment10" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 8, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment10"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment10"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment10"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment9")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment11" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 12, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment11"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment11"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment11"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment10")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment12" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 16, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment12"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment12"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment12"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment11")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment13" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 20, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment13"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment13"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment13"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment12")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment14" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 24, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment14"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment14"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment14"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment13")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment15" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 28, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment15"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment15"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment15"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment14")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="RopeSegment16" type="RigidBody2D" parent="Rope"]
+use_parent_material = true
+position = Vector2( 32, 0 )
+z_index = 1
+collision_layer = 4
+collision_mask = 6
+physics_material_override = SubResource( 10 )
+can_sleep = false
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="Sprite" type="Sprite" parent="Rope/RopeSegment16"]
+use_parent_material = true
+texture = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Rope/RopeSegment16"]
+visible = false
+rotation = 1.5708
+shape = SubResource( 9 )
+
+[node name="PinJoint2D" type="PinJoint2D" parent="Rope/RopeSegment16"]
+position = Vector2( -2, 0 )
+node_a = NodePath("../../RopeSegment15")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="PinJoint2D2" type="PinJoint2D" parent="Rope/RopeSegment16"]
+position = Vector2( 2, 0 )
+node_a = NodePath("../../../RightGrabber")
+node_b = NodePath("..")
+bias = 0.9
+softness = 0.05
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/rope_fade_in = SubResource( 12 )
+anims/rope_fade_out = SubResource( 11 )

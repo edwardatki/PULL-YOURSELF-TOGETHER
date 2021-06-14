@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Run As Fast As You Can.ogg-8a805925ae8a255902ca5d8379c09d9f.oggstr"
+
+[deps]
+
+source_file="res://sounds/Run As Fast As You Can.ogg"
+dest_files=[ "res://.import/Run As Fast As You Can.ogg-8a805925ae8a255902ca5d8379c09d9f.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Searching for a Body.ogg-0cf6f94454d886760da56be6d2aa29bd.oggstr"
+
+[deps]
+
+source_file="res://sounds/Searching for a Body.ogg"
+dest_files=[ "res://.import/Searching for a Body.ogg-0cf6f94454d886760da56be6d2aa29bd.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
